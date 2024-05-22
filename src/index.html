@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behavior Demo</title>
+    <!-- 加载第三方 antv x6 库 -->
+
+    <!-- Load the main X6 library -->
+    <script  src="https://cdn.jsdelivr.net/npm/@antv/x6"></script>
+
+    <!-- Load the X6 selection plugin -->
+    <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-plugin-selection"></script>
+
+    <!-- Load the X6 scroller plugin -->
+    <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-plugin-scroller"></script>
+
+    <!-- Load the X6 snapline plugin -->
+    <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-plugin-snapline"></script>
+
+
+    <!-- Load the X6 minimap plugin -->
+    <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-plugin-minimap"></script>
+
+
+    <!-- Load the X6 minimap plugin -->
+    <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-plugin-dnd"></script>
+
+
+    <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-common"></script>
+</head>
+<body>
+<!-- 注意，使用 autoResize 配置时，需要在画布容器外面再套一层宽高都是 100% 的外层容器，在外层容器上监听尺寸改变，当外层容器大小改变时，画布自动重新计算宽高以及元素位置。 -->
+<div style="width:100%; height:100%; display: flex; justify-content: center; align-items: center;">
+
+    <div id="dnd-wrap">
+        <div id="dndRect" style="width: 100px; height: 100px; background-color: red;">
+            Rect
+        </div>
+        <div id="dndCircle" style="width: 100px; height: 100px; background-color: blue;">
+            Circle
+        </div>
+    </div>
+
+    <div id="container"></div>
+    <div id="MinimapContainer"></div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
