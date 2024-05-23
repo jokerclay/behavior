@@ -18,7 +18,7 @@ const rectDnd = document.getElementById('dndRect');
 const circleDnd = document.getElementById('dndCircle');
 
 
-let section = new Selection({
+let selection = new Selection({
     enabled: true,
     multiple: true,
     rubberband: true,
@@ -290,43 +290,51 @@ const ifBlockFunc = graph.addNode({
 
 
 graph.addNode({
-    shape: 'text-block',
-    x: 360,
+
+    shape: 'custom-node-width-port',
+    x: 160,
     y: 400,
     width: 60,
     height: 40,
-
-    text:"2we23",
-    label: 'input',
-})
-
-
-
-
-/*
-rectDnd.addEventListener('mousedown', e => {
-    console.log("aaaa " + e)
-    dnd.start(
-        graph.addNode({
-            label: 'output',
-            shape: 'rect',
-            x: 600,
-            y: 300,
-            width: 100,
-            height: 40,
-            attrs: {
-                body: {
-                    stroke: '#8f8f8f',
-                    strokeWidth: 1,
-                    fill: '#fff',
-                    rx: 6,
-                    ry: 6,
-                },
+    text:"0",
+    label: '0',
+    ports: {
+        items: [
+            {
+                id: 'text_port_4',
+                group: 'right',
             },
-        })
-        ,e)
+        ],
+    },
 })
-*/
+
+var nodes =[];
+selection.on('node:selected', ({ node }) => {
+    console.log('selected node:', node)
+})
+
+console.log("selected nodes: "+ nodes);
+
+
+var vs =[];
+graph.on('view:mounted', ({ view }) => {
+    vs.push(view)
+})
+
+
+console.log(graph)
+
+// for single node delection
+var v = graph.view;
+graph.on('node:click', ({ e, x, y, node, view }) => {
+    v = view;
+})
+document.onkeydown = function (e) {
+    console.log(e.key)
+    if(e.key ==="Backspace") {
+        v.cell.remove()
+    }
+};
 
 
 function allowDrop(ev) {
@@ -373,8 +381,6 @@ rectDnd.ondragstart = drag;         // 开始拖拽时 执行 drag 函数
 container.ondragover = allowDrop;   // 使画布允许 drop
 container.ondrop = drop;           // 执行 drop 函数
 
-
-
 graph.on('edge:click', ({ e, x, y, edge, view }) => {
     console.log('e', e, )
     console.log('x',  x, )
@@ -383,15 +389,7 @@ graph.on('edge:click', ({ e, x, y, edge, view }) => {
     console.log('view',  view)
 })
 
-
-
-
-graph.use(section)
+graph.use(selection)
 graph.use(scroller)
 graph.use(snapline)
 graph.use(miniMap)
-
-
-
-
-
