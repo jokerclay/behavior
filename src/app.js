@@ -14,8 +14,11 @@ const {Dnd} = window.X6PluginDnd;
 const container = document.getElementById('container');
 const MinimapContainer = document.getElementById('MinimapContainer');
 
-const rectDnd = document.getElementById('dndRect');
-const circleDnd = document.getElementById('dndCircle');
+const dndOutput= document.getElementById('dndOutput');
+const dndInput= document.getElementById('dndInput');
+const dndLiteral = document.getElementById('dndLiteral');
+const dndAddFunc= document.getElementById('dndAddFunc');
+
 
 
 let selection = new Selection({
@@ -76,7 +79,6 @@ Graph.registerNode(
                         },
                     },
                 },
-
                 left: {
                     position: 'left',
                     attrs: {
@@ -115,7 +117,6 @@ Graph.registerNode(
 )
 
 /*
-
 allowBlank：是否允许连接到画布空白位置的点，默认为 true。
 allowLoop：是否允许创建循环连线，即边的起始节点和终止节点为同一节点，默认为 true。
 allowNode：是否允许边连接到节点（非节点上的连接桩），默认为 true。
@@ -182,8 +183,6 @@ const graph = new Graph({
     },
 })
 
-
-
 const input1 = graph.addNode({
     shape: 'custom-node-width-port',
     x: 140,
@@ -199,7 +198,6 @@ const input1 = graph.addNode({
     },
 })
 
-
 const input2 = graph.addNode({
     shape: 'custom-node-width-port',
     x: 140,
@@ -214,8 +212,6 @@ const input2 = graph.addNode({
         ],
     },
 })
-
-
 
 
 const output = graph.addNode({
@@ -341,13 +337,21 @@ function allowDrop(ev) {
     ev.preventDefault();
 }
 
+
+let current_ev = null;
 function drag(ev) {
-    console.log("onDragStart" + ev)
+    ev.dataTransfer.setData("text", ev.target.id);
+    console.log("onDragStart ---->" + ev.target.id)
 }
 
-function drop(ev) {
+function dropOutput(ev) {
+/*
+    console.log("onDragStart----> " + ev.target.id)
+*/
+/*
     console.log("x" + ev.x + " y" + ev.y)
     console.log("clientX" + ev.clientX + " clientY" + ev.clientY)
+*/
     let node = graph.addNode({
         shape: 'custom-node-width-port',
         label: 'output',
@@ -376,10 +380,154 @@ function drop(ev) {
     dnd.start(node,ev)
 }
 
-rectDnd.draggable = true;
-rectDnd.ondragstart = drag;         // 开始拖拽时 执行 drag 函数
-container.ondragover = allowDrop;   // 使画布允许 drop
-container.ondrop = drop;           // 执行 drop 函数
+function dropIntput(ev) {
+    let node = graph.addNode({
+        shape: 'custom-node-width-port',
+        label: 'input',
+        x: ev.x-300,
+        y: ev.y-20,
+        width: 100,
+        height: 40,
+        attrs: {
+            body: {
+                stroke: '#8f8f8f',
+                strokeWidth: 1,
+                fill: '#fff',
+                rx: 6,
+                ry: 6,
+            },
+        },
+        ports: {
+            items: [
+                {
+                    id: 'right_port_1',
+                    group: 'right',
+                },
+            ],
+        },
+    })
+    dnd.start(node,ev)
+}
+
+
+
+
+
+
+function dropLiteral(ev) {
+    let node = graph.addNode({
+        shape: 'custom-node-width-port',
+        label: 'literal',
+        x: ev.x-300,
+        y: ev.y-20,
+        width: 100,
+        height: 40,
+        attrs: {
+            body: {
+                stroke: '#8f8f8f',
+                strokeWidth: 1,
+                fill: '#fff',
+                rx: 6,
+                ry: 6,
+            },
+        },
+        ports: {
+            items: [
+                {
+                    id: 'literal_port_1',
+                    group: 'right',
+                },
+            ],
+        },
+    })
+    dnd.start(node,ev)
+}
+
+function dropAddFunc(ev) {
+    let node = graph.addNode({
+        shape: 'custom-node-width-port',
+        label: 'AddFunc',
+        x: ev.x-300,
+        y: ev.y-20,
+        width: 100,
+        height: 40,
+        attrs: {
+            body: {
+                stroke: '#8f8f8f',
+                strokeWidth: 1,
+                fill: '#fff',
+                rx: 6,
+                ry: 6,
+            },
+        },
+        ports: {
+            items: [
+                {
+                    id: 'addFunc_port_1',
+                    group: 'left',
+                },
+                {
+                    id: 'addFunc_port_2',
+                    group: 'left',
+                },
+                {
+                    id: 'addFunc_port_3',
+                    group: 'right',
+                },
+            ],
+        },
+    })
+    dnd.start(node,ev)
+}
+
+dndOutput.draggable = true;
+dndOutput.ondragstart = drag;           // 开始拖拽时 执行 drag 函数
+
+dndInput.draggable = true;
+dndInput.ondragstart = drag;           // 开始拖拽时 执行 drag 函数
+
+dndLiteral.draggable = true;
+dndLiteral.ondragstart = drag;           // 开始拖拽时 执行 drag 函数
+
+dndLiteral.draggable = true;
+dndLiteral.ondragstart = drag;           // 开始拖拽时 执行 drag 函数
+
+dndAddFunc.draggable = true;
+dndAddFunc.ondragstart = drag;           // 开始拖拽时 执行 drag 函数
+
+container.ondragover = allowDrop;       // 使画布允许 drop
+container.ondrop =  ev => {
+/*
+    console.log(ev.target.appendChild(document.getElementById(ev.dataTransfer.getData("text"))))
+*/
+    ev.dataTransfer.setData("text", ev.target.id);
+/*
+    console.log(ev.dataTransfer.getData("text"))
+*/
+    // get element's tag like Input, Output, AddFunc, IfBlockFunc ... with dnd prefix
+    let tag = ev.dataTransfer.getData("text");
+
+    switch(tag) {
+        case "dndOutput":
+            dropOutput(ev);
+            break;
+        case "dndInput":
+            dropIntput(ev);
+            break;
+
+        case "dndLiteral":
+            dropLiteral(ev);
+            break;
+
+        case "dndAddFunc":
+            dropAddFunc(ev);
+            break;
+
+        default:
+            break;
+    }
+};
+
 
 graph.on('edge:click', ({ e, x, y, edge, view }) => {
     console.log('e', e, )
