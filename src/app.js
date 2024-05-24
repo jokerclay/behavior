@@ -51,7 +51,7 @@ const dnd = new Dnd({
 
 console.log(window);
 
-
+// 自定义节点
 Graph.registerNode(
     'custom-node-width-port',
     {
@@ -125,6 +125,7 @@ allowPort：是否允许边连接到连接桩，默认为 true。
 allowMulti：是否允许在相同的起始节点和终止之间创建多条边，默认为 true。
 */
 
+// 对画布行为的基本配置
 const graph = new Graph({
     container: container,
     width: 900,
@@ -233,7 +234,9 @@ const output = graph.addNode({
 
 const addFunc = graph.addNode({
     shape: 'custom-node-width-port',
-    x: 360,
+    width: 150,
+    height: 80,
+    x: 330,
     y: 200,
     label: 'addFunc',
     ports: {
@@ -286,7 +289,6 @@ const ifBlockFunc = graph.addNode({
 
 
 graph.addNode({
-
     shape: 'custom-node-width-port',
     x: 160,
     y: 400,
@@ -304,19 +306,16 @@ graph.addNode({
     },
 })
 
+
 var nodes =[];
 selection.on('node:selected', ({ node }) => {
     console.log('selected node:', node)
 })
 
-console.log("selected nodes: "+ nodes);
-
-
 var vs =[];
 graph.on('view:mounted', ({ view }) => {
     vs.push(view)
 })
-
 
 console.log(graph)
 
@@ -345,13 +344,6 @@ function drag(ev) {
 }
 
 function dropOutput(ev) {
-/*
-    console.log("onDragStart----> " + ev.target.id)
-*/
-/*
-    console.log("x" + ev.x + " y" + ev.y)
-    console.log("clientX" + ev.clientX + " clientY" + ev.clientY)
-*/
     let node = graph.addNode({
         shape: 'custom-node-width-port',
         label: 'output',
@@ -411,16 +403,13 @@ function dropIntput(ev) {
 
 
 
-
-
-
 function dropLiteral(ev) {
     let node = graph.addNode({
         shape: 'custom-node-width-port',
-        label: 'literal',
+        label: '0',
         x: ev.x-300,
         y: ev.y-20,
-        width: 100,
+        width: 60,
         height: 40,
         attrs: {
             body: {
@@ -449,8 +438,8 @@ function dropAddFunc(ev) {
         label: 'AddFunc',
         x: ev.x-300,
         y: ev.y-20,
-        width: 100,
-        height: 40,
+        width: 150,
+        height: 80,
         attrs: {
             body: {
                 stroke: '#8f8f8f',
