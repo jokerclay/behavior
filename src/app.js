@@ -1,25 +1,21 @@
-// 获取 Data.js 文件中的数据
-import {data} from './Data/Data.js';
-
-// 获取 X6 实例
-const {Graph} = window.X6;
-const {Selection} = window.X6PluginSelection;
-const {Scroller} = window.X6PluginScroller;
-const {Snapline} = window.X6PluginSnapline;
-const {MiniMap} = window.X6PluginMinimap;
-const {Dnd} = window.X6PluginDnd;
+const {Graph,Shape } = window.X6;
+const {Selection   } = window.X6PluginSelection;
+const {Scroller    } = window.X6PluginScroller;
+const {Snapline    } = window.X6PluginSnapline;
+const {MiniMap     } = window.X6PluginMinimap;
+const {Dnd         } = window.X6PluginDnd;
 
 
 // 获取 画布HTML 元素 作为容器
 const container = document.getElementById('container');
 const MinimapContainer = document.getElementById('MinimapContainer');
-
 const dndOutput= document.getElementById('dndOutput');
 const dndInput= document.getElementById('dndInput');
 const dndLiteral = document.getElementById('dndLiteral');
 const dndAddFunc= document.getElementById('dndAddFunc');
 
-
+const AddLeftPort =  document.getElementById('AddLeftPort');
+const RemoveLeftPort =  document.getElementById('RemoveLeftPort');
 
 let selection = new Selection({
     enabled: true,
@@ -131,17 +127,42 @@ const graph = new Graph({
     width: 900,
     height: 700,
     background: {color: '#F2F7FA'},
+
     connecting: {
+        router: 'manhattan',
+        connector: {
+            name: 'rounded',
+            args: {
+                radius: 8,
+            },
+        },
+        anchor: 'center',
+        connectionPoint: 'anchor',
         allowBlank: false,
-        allowLoop: false,
-        allowNode: false,
-        allowEdge: false,
-        allowPort: true,
-        allowMulti:true,
-        connectionPoint: {
-            name: 'anchor',
+        snap: {
+            radius: 20,
+        },
+        createEdge() {
+            return new Shape.Edge({
+                attrs: {
+                    line: {
+                        stroke: '#A2B1C3',
+                        strokeWidth: 2,
+                        targetMarker: {
+                            name: 'block',
+                            width: 12,
+                            height: 8,
+                        },
+                    },
+                },
+                zIndex: 0,
+            })
+        },
+        validateConnection({ targetMagnet }) {
+            return !!targetMagnet
         },
     },
+
     grid: {
         visible: true,
         type: 'doubleMesh',
@@ -199,6 +220,14 @@ const input1 = graph.addNode({
     },
 })
 
+graph.bindKey('backspace', () => {
+    const cells = graph.getSelectedCells()
+    if (cells.length) {
+        graph.removeCells(cells)
+    }
+})
+
+
 const input2 = graph.addNode({
     shape: 'custom-node-width-port',
     x: 140,
@@ -219,7 +248,7 @@ const output = graph.addNode({
     shape: 'custom-node-width-port',
     x: 560,
     y: 200,
-    label: 'output',
+    label: 'outpoioooooooooooooooooooooooooooooooooooooooooooooout',
     ports: {
         items: [
             {
@@ -229,8 +258,6 @@ const output = graph.addNode({
         ],
     },
 })
-
-
 
 const addFunc = graph.addNode({
     shape: 'custom-node-width-port',
@@ -249,13 +276,12 @@ const addFunc = graph.addNode({
                 id: 'add_port_2',
                 group: 'left',
             },
-            {
-                id: 'add_port_3',
-                group: 'right',
-            },
         ],
     },
 })
+
+
+
 
 
 const ifBlockFunc = graph.addNode({
@@ -308,9 +334,53 @@ graph.addNode({
 
 
 var nodes =[];
+var selected_node = null;
 selection.on('node:selected', ({ node }) => {
     console.log('selected node:', node)
+    console.log('node ports ==> :', node.port.ports.length)
+    selected_node = node;
 })
+
+
+AddLeftPort.addEventListener( 'click', function() {
+   selected_node.addPort({
+        group: 'left',
+        attrs: {
+            text: {
+                text: `${selected_node.port.ports.length + 1}`,
+            },
+        },
+    })
+
+var h = selected_node.getProp("size").height;
+let update_height = 1.1*h
+    selected_node.setProp({
+        size: {
+            width: 100,
+            height: update_height,
+        },
+    })
+})
+
+
+RemoveLeftPort.addEventListener( 'click', function() {
+    console.log("adadf")
+    console.log(selected_node)
+
+    if(selected_node.port.ports.length > 0){
+        console.log("cwwcwe")
+        selected_node.removePortAt(selected_node.port.ports.length- 1);
+        var h = selected_node.getProp("size").height;
+        let update_height = 0.9*h
+        selected_node.setProp({
+            size: {
+                width: 100,
+                height: update_height,
+            },
+        })
+    }
+})
+
 
 var vs =[];
 graph.on('view:mounted', ({ view }) => {
@@ -324,6 +394,7 @@ var v = graph.view;
 graph.on('node:click', ({ e, x, y, node, view }) => {
     v = view;
 })
+
 document.onkeydown = function (e) {
     console.log(e.key)
     if(e.key ==="Backspace") {
@@ -526,7 +597,24 @@ graph.on('edge:click', ({ e, x, y, edge, view }) => {
     console.log('view',  view)
 })
 
+
 graph.use(selection)
 graph.use(scroller)
 graph.use(snapline)
 graph.use(miniMap)
+
+
+/*
+graph.validateConnection((
+    sourceCell,
+    targetCell,
+    sourceMagnet,
+    targetMagnet,
+)=>{
+    console.log('sourceCell', sourceCell)
+    console.log('targetCell', targetCell)
+    console.log('sourceMagnet', sourceMagnet)
+    console.log('targetMagnet', targetMagnet)
+    return false;
+})
+*/

@@ -26,6 +26,9 @@
     <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-plugin-dnd"></script>
 
     <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-common"></script>
+
+    <script  src="https://cdn.jsdelivr.net/npm/@antv/x6-plugin-keyboard"></script>
+
 </head>
 <body>
 <!-- 注意，使用 autoResize 配置时，需要在画布容器外面再套一层宽高都是 100% 的外层容器，在外层容器上监听尺寸改变，当外层容器大小改变时，画布自动重新计算宽高以及元素位置。 -->
@@ -49,6 +52,18 @@
         <div id="dndAddFunc" style="width: 100px; height: 40px; border: 1px solid #ccc; background-color: #f5f5f5;">
             AddFunc
         </div>
+
+
+        <div  style="width: 100px; height: 40px; border: 1px solid #ccc; background-color: #f5f5f5; display:flex; justify-content: center; align-items: center;">
+            <button id="AddLeftPort" >AddLeftPort</button>
+        </div>
+
+        <div  style="width: 100px; height: 40px; border: 1px solid #ccc; background-color: #f5f5f5; display:flex; justify-content: center; align-items: center;">
+            <button id="RemoveLeftPort" >RemoveLeftPort</button>
+        </div>
+
+
+
 
     </div>
 
