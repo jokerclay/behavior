@@ -199,10 +199,8 @@ const graph = new Graph({
 
 
             // 不能连接自身
-            if (sourceCell === targetCell) {
-                return false;
-            }
-            return true;
+            return sourceCell !== targetCell;
+
         }
     },
 
