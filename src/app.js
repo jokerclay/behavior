@@ -111,6 +111,12 @@ Graph.registerNode(
     },
     true,
 )
+function getPortIdFirstPart(str) {
+    // Split the string by underscores
+    const parts = str.split('_');
+    // Return the first part
+    return parts[0];
+}
 
 /*
 allowBlank：是否允许连接到画布空白位置的点，默认为 true。
@@ -177,6 +183,11 @@ const graph = new Graph({
 
             console.log("SourcePortId:", SourcePortId)
             console.log("TargetPortId:", TargetPortId)
+            let SourceNodeType = getPortIdFirstPart(SourcePortId)
+            let TargetNodeType = getPortIdFirstPart(TargetPortId)
+            console.log("SourceNodeType:", SourceNodeType)
+            console.log("TargetNodeType:", TargetNodeType)
+
             //base on the `SourcePortId` and  `TargetPortId`
             // usually look like this format:
             //                              `Func_Add_Port_1`
@@ -184,8 +195,6 @@ const graph = new Graph({
             //                              `In_Port_1`
             //                              `Out_Port_1`
             // we can do the validation according to the port id
-
-
 
 
 
@@ -238,6 +247,9 @@ const graph = new Graph({
         },
     },
 })
+
+
+
 
 const input1 = graph.addNode({
     shape: 'custom-node-width-port',
