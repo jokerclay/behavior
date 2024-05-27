@@ -391,10 +391,13 @@ selection.on('node:selected', ({ node }) => {
 
 
 AddLeftPort.addEventListener( 'click', function() {
+    console.log()
+    let prefix = getPortIdFirstPart(selected_node.port.ports[0].id)
    selected_node.addPort({
         group: 'left',
         attrs: {
             text: {
+                id: `${prefix}_Port_${selected_node.port.ports.length + 1}`,
                 text: `${selected_node.port.ports.length + 1}`,
             },
         },
@@ -495,7 +498,7 @@ function dropOutput(ev) {
         ports: {
             items: [
                 {
-                    id: 'output_port_2',
+                    id: 'Output_port_1',
                     group: 'left',
                 },
             ],
@@ -524,7 +527,7 @@ function dropIntput(ev) {
         ports: {
             items: [
                 {
-                    id: 'right_port_1',
+                    id: 'Input_port_1',
                     group: 'right',
                 },
             ],
@@ -555,7 +558,7 @@ function dropLiteral(ev) {
         ports: {
             items: [
                 {
-                    id: 'literal_port_1',
+                    id: 'Literal_port_1',
                     group: 'right',
                 },
             ],
@@ -584,15 +587,15 @@ function dropAddFunc(ev) {
         ports: {
             items: [
                 {
-                    id: 'addFunc_port_1',
+                    id: 'FuncAdd_port_1',
                     group: 'left',
                 },
                 {
-                    id: 'addFunc_port_2',
+                    id: 'FuncAdd_port_2',
                     group: 'left',
                 },
                 {
-                    id: 'addFunc_port_3',
+                    id: 'FuncAdd_port_3',
                     group: 'right',
                 },
             ],
