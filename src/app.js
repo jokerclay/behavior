@@ -127,7 +127,13 @@ const graph = new Graph({
     width: 900,
     height: 700,
     background: {color: '#F2F7FA'},
-
+    mousewheel: {
+        enabled: true,
+        zoomAtMousePosition: true,
+        modifiers: 'ctrl',
+        minScale: 0.5,
+        maxScale: 3,
+    },
     connecting: {
         router: 'manhattan',
         connector: {
@@ -158,9 +164,37 @@ const graph = new Graph({
                 zIndex: 0,
             })
         },
-        validateConnection({ targetMagnet }) {
-            return !!targetMagnet
-        },
+        validateConnection({sourceCell, targetCell, sourceMagnet, targetMagnet,})
+        {
+/*
+            console.log("sourceCell:", sourceCell)
+            console.log("targetCell:", targetCell)
+            console.log("sourceMagnet:", sourceMagnet)
+            console.log("targetMagnet:", targetMagnet)
+*/
+            const SourcePortId = sourceMagnet.getAttribute('port')
+            const TargetPortId = targetMagnet .getAttribute('port')
+
+            console.log("SourcePortId:", SourcePortId)
+            console.log("TargetPortId:", TargetPortId)
+            //base on the `SourcePortId` and  `TargetPortId`
+            // usually look like this format:
+            //                              `Func_Add_Port_1`
+            //                              `Func_If_Port_1`
+            //                              `In_Port_1`
+            //                              `Out_Port_1`
+            // we can do the validation according to the port id
+
+
+
+
+
+            // 不能连接自身
+            if (sourceCell === targetCell) {
+                return false;
+            }
+            return true;
+        }
     },
 
     grid: {
@@ -213,17 +247,26 @@ const input1 = graph.addNode({
     ports: {
         items: [
             {
-                id: 'port_1',
+                id: 'In_Port_1',
                 group: 'right',
             },
         ],
     },
 })
 
-graph.bindKey('backspace', () => {
-    const cells = graph.getSelectedCells()
-    if (cells.length) {
-        graph.removeCells(cells)
+
+
+// zoom
+graph.bindKey(['ctrl+1', 'meta+1'], () => {
+    const zoom = graph.zoom()
+    if (zoom < 1.5) {
+        graph.zoom(0.1)
+    }
+})
+graph.bindKey(['ctrl+2', 'meta+2'], () => {
+    const zoom = graph.zoom()
+    if (zoom > 0.5) {
+        graph.zoom(-0.1)
     }
 })
 
@@ -236,7 +279,7 @@ const input2 = graph.addNode({
     ports: {
         items: [
             {
-                id: 'port_1',
+                id: 'In_Port_1',
                 group: 'right',
             },
         ],
@@ -252,7 +295,7 @@ const output = graph.addNode({
     ports: {
         items: [
             {
-                id: 'port_2',
+                id: 'Out_Port_1',
                 group: 'left',
             },
         ],
@@ -269,11 +312,11 @@ const addFunc = graph.addNode({
     ports: {
         items: [
             {
-                id: 'add_port_1',
+                id: 'Func_Add_Port_1',
                 group: 'left',
             },
             {
-                id: 'add_port_2',
+                id: 'Func_Add_Port_2',
                 group: 'left',
             },
         ],
@@ -292,23 +335,20 @@ const ifBlockFunc = graph.addNode({
     ports: {
         items: [
             {
-                id: 'if_port_1',
+                id: 'Func_If_Port_1',
                 group: 'left',
             },
             {
-                id: 'if_port_2',
+                id: 'Func_If_Port_2',
                 group: 'left',
-            },
-            {
-                id: 'if_port_3',
+            }, {
+                id: 'Func_If_Port_3',
                 group: 'top',
             },
             {
-                id: 'if_port_4',
+                id: 'Func_If_Port_4',
                 group: 'right',
             },
-
-
         ],
     },
 })
@@ -325,15 +365,13 @@ graph.addNode({
     ports: {
         items: [
             {
-                id: 'text_port_4',
+                id: 'IN_Text_Port_1',
                 group: 'right',
             },
         ],
     },
 })
 
-
-var nodes =[];
 var selected_node = null;
 selection.on('node:selected', ({ node }) => {
     console.log('selected node:', node)
@@ -352,34 +390,49 @@ AddLeftPort.addEventListener( 'click', function() {
         },
     })
 
-var h = selected_node.getProp("size").height;
-let update_height = 1.1*h
+    // Get the current number of ports
+    const numPorts = selected_node.port.ports.length;
+
+    // Set a base height for the node (e.g., the minimum height for a node with 1 port)
+    const baseHeight = 100;
+
+    // Calculate the new height based on the number of ports
+    const newHeight = baseHeight + (numPorts - 1) * 20; // Adjust 20 to the desired space between ports
+
+    // Update the node size
     selected_node.setProp({
         size: {
             width: 100,
-            height: update_height,
+            height: newHeight,
         },
-    })
+    });
+
 })
 
 
-RemoveLeftPort.addEventListener( 'click', function() {
-    console.log("adadf")
-    console.log(selected_node)
+RemoveLeftPort.addEventListener('click', function() {
+    if (selected_node.port.ports.length > 0) {
+        // Remove the last port
+        selected_node.removePortAt(selected_node.port.ports.length - 1);
 
-    if(selected_node.port.ports.length > 0){
-        console.log("cwwcwe")
-        selected_node.removePortAt(selected_node.port.ports.length- 1);
-        var h = selected_node.getProp("size").height;
-        let update_height = 0.9*h
+        // Get the updated number of ports
+        const numPorts = selected_node.port.ports.length;
+
+        // Set a base height for the node (e.g., the minimum height for a node with 1 port)
+        const baseHeight = 100;
+
+        // Calculate the new height based on the number of ports
+        const newHeight = baseHeight + (numPorts - 1) * 20; // Adjust 20 to the desired space between ports
+
+        // Update the node size
         selected_node.setProp({
             size: {
                 width: 100,
-                height: update_height,
+                height: newHeight,
             },
-        })
+        });
     }
-})
+});
 
 
 var vs =[];
@@ -389,16 +442,14 @@ graph.on('view:mounted', ({ view }) => {
 
 console.log(graph)
 
-// for single node delection
-var v = graph.view;
-graph.on('node:click', ({ e, x, y, node, view }) => {
-    v = view;
-})
-
+//delete
 document.onkeydown = function (e) {
-    console.log(e.key)
     if(e.key ==="Backspace") {
-        v.cell.remove()
+            const cells = graph.getSelectedCells()
+        console.log(cells)
+            if (cells.length) {
+                graph.removeCells(cells)
+            }
     }
 };
 
@@ -582,7 +633,6 @@ container.ondrop =  ev => {
         case "dndAddFunc":
             dropAddFunc(ev);
             break;
-
         default:
             break;
     }
@@ -597,24 +647,7 @@ graph.on('edge:click', ({ e, x, y, edge, view }) => {
     console.log('view',  view)
 })
 
-
 graph.use(selection)
 graph.use(scroller)
 graph.use(snapline)
 graph.use(miniMap)
-
-
-/*
-graph.validateConnection((
-    sourceCell,
-    targetCell,
-    sourceMagnet,
-    targetMagnet,
-)=>{
-    console.log('sourceCell', sourceCell)
-    console.log('targetCell', targetCell)
-    console.log('sourceMagnet', sourceMagnet)
-    console.log('targetMagnet', targetMagnet)
-    return false;
-})
-*/
