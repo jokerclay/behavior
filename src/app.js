@@ -95,7 +95,6 @@ Graph.registerNode(
                         },
                     },
                 },
-
                 bottom: {
                     position: 'bottom',
                     attrs: {
@@ -119,12 +118,12 @@ function getPortIdFirstPart(str) {
 }
 
 /*
-allowBlank：是否允许连接到画布空白位置的点，默认为 true。
-allowLoop：是否允许创建循环连线，即边的起始节点和终止节点为同一节点，默认为 true。
-allowNode：是否允许边连接到节点（非节点上的连接桩），默认为 true。
-allowEdge：是否允许边连接到另一个边，默认为 true。
-allowPort：是否允许边连接到连接桩，默认为 true。
-allowMulti：是否允许在相同的起始节点和终止之间创建多条边，默认为 true。
+allowBlank ：是否允许连接到画布空白位置的点，默认为 true。
+allowLoop  ：是否允许创建循环连线，即边的起始节点和终止节点为同一节点，默认为 true。
+allowNode  ：是否允许边连接到节点（非节点上的连接桩），默认为 true。
+allowEdge  ：是否允许边连接到另一个边，默认为 true。
+allowPort  ：是否允许边连接到连接桩，默认为 true。
+allowMulti ：是否允许在相同的起始节点和终止之间创建多条边，默认为 true。
 */
 
 // 对画布行为的基本配置
@@ -190,17 +189,23 @@ const graph = new Graph({
 
             //base on the `SourcePortId` and  `TargetPortId`
             // usually look like this format:
-            //                              `Func_Add_Port_1`
-            //                              `Func_If_Port_1`
+            //                              `FuncAdd_Port_1`
+            //                              `FuncIf_Port_1`
             //                              `In_Port_1`
             //                              `Out_Port_1`
             // we can do the validation according to the port id
 
+            // 同一种节点不能相连
+            if (SourceNodeType === TargetNodeType) return false;
 
+            // output 节点不能连接到 函数 节点
+            if (SourceNodeType  === "Out" && TargetNodeType.startsWith("Func")  ) return false;
+
+            // output 节点不能连接到  输入 节点
+            if (SourceNodeType  === "Out" && TargetNodeType.startsWith("In")  ) return false;
 
             // 不能连接自身
             return sourceCell !== targetCell;
-
         }
     },
 
@@ -322,11 +327,11 @@ const addFunc = graph.addNode({
     ports: {
         items: [
             {
-                id: 'Func_Add_Port_1',
+                id: 'FuncAdd_Port_1',
                 group: 'left',
             },
             {
-                id: 'Func_Add_Port_2',
+                id: 'FuncAdd_Port_2',
                 group: 'left',
             },
         ],
@@ -345,18 +350,18 @@ const ifBlockFunc = graph.addNode({
     ports: {
         items: [
             {
-                id: 'Func_If_Port_1',
+                id: 'FuncIf_Port_1',
                 group: 'left',
             },
             {
-                id: 'Func_If_Port_2',
+                id: 'FuncIf_Port_2',
                 group: 'left',
             }, {
-                id: 'Func_If_Port_3',
+                id: 'FuncIf_Port_3',
                 group: 'top',
             },
             {
-                id: 'Func_If_Port_4',
+                id: 'FuncIf_Port_4',
                 group: 'right',
             },
         ],
@@ -375,7 +380,7 @@ graph.addNode({
     ports: {
         items: [
             {
-                id: 'IN_Text_Port_1',
+                id: 'InText_Port_1',
                 group: 'right',
             },
         ],
@@ -391,9 +396,14 @@ selection.on('node:selected', ({ node }) => {
 
 
 AddLeftPort.addEventListener( 'click', function() {
-    console.log()
+    if (!graph.isSelected(selected_node)) {
+        selected_node = null
+    }
+    if (selected_node == null) {
+        alert("please select a node first")
+    }
     let prefix = getPortIdFirstPart(selected_node.port.ports[0].id)
-   selected_node.addPort({
+    selected_node.addPort({
         group: 'left',
         attrs: {
             text: {
@@ -419,12 +429,18 @@ AddLeftPort.addEventListener( 'click', function() {
             height: newHeight,
         },
     });
-
 })
 
 
 RemoveLeftPort.addEventListener('click', function() {
-    if (selected_node.port.ports.length > 0) {
+    if (!graph.isSelected(selected_node)) {
+        selected_node = null
+    }
+    if (selected_node == null) {
+        alert("please select a node first")
+    }
+
+    if (selected_node.port.ports.length > 1) {
         // Remove the last port
         selected_node.removePortAt(selected_node.port.ports.length - 1);
 
@@ -536,8 +552,6 @@ function dropIntput(ev) {
     dnd.start(node,ev)
 }
 
-
-
 function dropLiteral(ev) {
     let node = graph.addNode({
         shape: 'custom-node-width-port',
@@ -638,11 +652,9 @@ container.ondrop =  ev => {
         case "dndInput":
             dropIntput(ev);
             break;
-
         case "dndLiteral":
             dropLiteral(ev);
             break;
-
         case "dndAddFunc":
             dropAddFunc(ev);
             break;
