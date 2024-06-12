@@ -17,33 +17,11 @@ const dndAddFunc= document.getElementById('dndAddFunc');
 const AddLeftPort =  document.getElementById('AddLeftPort');
 const RemoveLeftPort =  document.getElementById('RemoveLeftPort');
 
-let selection = new Selection({
-    enabled: true,
-    multiple: true,
-    rubberband: true,
-    movable: true,
-    showNodeSelectionBox: true,
-})
-
-let scroller = new Scroller({
-    enabled: true,
-})
-
-let snapline = new Snapline({
-    enabled: true,
-    sharp: true,
-})
-
-let miniMap = new MiniMap({
-    container: MinimapContainer,
-    width: 200,
-    height: 160,
-    padding: 10,
-})
-
-const dnd = new Dnd({
-    enable: true,
-})
+let selection = new Selection({enabled: true, multiple: true, rubberband: true, movable: true, showNodeSelectionBox: true,})
+let scroller = new Scroller({enabled: true,})
+let snapline = new Snapline({enabled: true, sharp: true,})
+let miniMap = new MiniMap({container: MinimapContainer, width: 200, height: 160, padding: 10,})
+const dnd = new Dnd({enable: true,})
 
 console.log(window);
 
@@ -110,6 +88,7 @@ Graph.registerNode(
     },
     true,
 )
+
 function getPortIdFirstPart(str) {
     // Split the string by underscores
     const parts = str.split('_');
@@ -177,20 +156,25 @@ const graph = new Graph({
             console.log("sourceMagnet:", sourceMagnet)
             console.log("targetMagnet:", targetMagnet)
 */
+
             const SourcePortId = sourceMagnet.getAttribute('port')
             const TargetPortId = targetMagnet .getAttribute('port')
 
+/*
             console.log("SourcePortId:", SourcePortId)
             console.log("TargetPortId:", TargetPortId)
+*/
             let SourceNodeType = getPortIdFirstPart(SourcePortId)
             let TargetNodeType = getPortIdFirstPart(TargetPortId)
+/*
             console.log("SourceNodeType:", SourceNodeType)
             console.log("TargetNodeType:", TargetNodeType)
+*/
 
             //base on the `SourcePortId` and  `TargetPortId`
             // usually look like this format:
-            //                              `FuncAdd_Port_1`
-            //                              `FuncIf_Port_1`
+            //                              `Func_Add_Port_1`
+            //                              `Func_If_Port_1`
             //                              `In_Port_1`
             //                              `Out_Port_1`
             // we can do the validation according to the port id
@@ -203,6 +187,17 @@ const graph = new Graph({
 
             // output 节点不能连接到  输入 节点
             if (SourceNodeType  === "Out" && TargetNodeType.startsWith("In")  ) return false;
+
+            // Func 节点不能连接到  输入 节点
+            if (SourceNodeType  === "Func" && TargetNodeType.startsWith("In")  ) return false;
+
+            // 输入只能有一个连接
+
+            // 不能重复连线
+            const edges = this.getEdges()
+            if (edges.find((edge) => edge.getTargetPortId() === TargetPortId)) {
+                return false
+            }
 
             // 不能连接自身
             return sourceCell !== targetCell;
@@ -306,7 +301,7 @@ const output = graph.addNode({
     shape: 'custom-node-width-port',
     x: 560,
     y: 200,
-    label: 'outpoioooooooooooooooooooooooooooooooooooooooooooooout',
+    label: 'Output1',
     ports: {
         items: [
             {
@@ -327,26 +322,47 @@ const addFunc = graph.addNode({
     ports: {
         items: [
             {
-                id: 'FuncAdd_Port_1',
+                id: 'Func_Add_Port_1',
                 group: 'left',
+                attrs: {
+                    text: {
+                        id: 'Func_Add_Port_1_Text',
+                        text: '1',
+                    },
+                },
             },
             {
-                id: 'FuncAdd_Port_2',
+                id: 'Func_Add_Port_2',
                 group: 'left',
+                attrs: {
+                    text: {
+                        id: 'Func_Add_Port_2_Text',
+                        text: '2',
+                    },
+                },
+            },
+            {
+                id: 'Func_Add_Port_3',
+                group: 'right',
+                attrs: {
+                    text: {
+                        id: 'Func_Add_Port_3_Text',
+                        text: '3',
+                    },
+                },
             },
         ],
     },
 })
 
 
-
-
+/*
 
 const ifBlockFunc = graph.addNode({
     shape: 'custom-node-width-port',
     x: 360,
     y: 400,
-    label: 'ifBlockFunc',
+    label: 'ifBlockFuncdasdfads',
     ports: {
         items: [
             {
@@ -368,7 +384,11 @@ const ifBlockFunc = graph.addNode({
     },
 })
 
+*/
 
+
+
+/*
 graph.addNode({
     shape: 'custom-node-width-port',
     x: 160,
@@ -386,6 +406,7 @@ graph.addNode({
         ],
     },
 })
+*/
 
 var selected_node = null;
 selection.on('node:selected', ({ node }) => {
@@ -601,15 +622,15 @@ function dropAddFunc(ev) {
         ports: {
             items: [
                 {
-                    id: 'FuncAdd_port_1',
+                    id: 'Func_Add_port_1',
                     group: 'left',
                 },
                 {
-                    id: 'FuncAdd_port_2',
+                    id: 'Func_Add_port_2',
                     group: 'left',
                 },
                 {
-                    id: 'FuncAdd_port_3',
+                    id: 'Func_Add_port_3',
                     group: 'right',
                 },
             ],
